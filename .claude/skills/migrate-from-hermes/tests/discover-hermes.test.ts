@@ -9,6 +9,7 @@ import {
   discoverHermesMemory,
   discoverHermesSkills,
   discoverUserTools,
+  runDiscovery,
 } from '../scripts/discover-hermes';
 
 describe('resolveStateDir', () => {
@@ -197,5 +198,34 @@ describe('discoverUserTools', () => {
       python_count: 0,
       total: 0,
     });
+  });
+});
+
+describe('runDiscovery', () => {
+  it('emits full result for a minimal Hermes layout', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-full-'));
+    try {
+      fs.writeFileSync(path.join(tmp, 'config.yaml'), `
+model:
+  default: claude-opus-4-7
+  provider: anthropic
+`);
+      fs.mkdirSync(path.join(tmp, 'memories'));
+      fs.writeFileSync(path.join(tmp, 'memories', 'MEMORY.md'), '# mem');
+      fs.mkdirSync(path.join(tmp, 'cron'));
+      fs.writeFileSync(path.join(tmp, 'cron', 'jobs.json'),
+        JSON.stringify({ jobs: [{ id: 'x', name: 'n', enabled: true, schedule: { expr: '* * * * *' }}] }));
+      const r = runDiscovery({ stateDir: tmp, toolsDir: '/tmp/nonexistent' });
+      expect(r.status).toBe('found');
+      expect(r.model).toBe('claude-opus-4-7');
+      expect(r.has_memory_md).toBe(true);
+      expect(r.cron_total).toBe(1);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('returns not_found when stateDir null', () => {
+    expect(runDiscovery({ stateDir: null, toolsDir: '/tmp' }).status).toBe('not_found');
   });
 });
