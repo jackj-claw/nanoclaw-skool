@@ -828,3 +828,25 @@ export function parseHermesCronJobs(text: string): HermesCronJobsResult {
 
   return { total: jobs.length, enabled: jobs.filter((j) => j.enabled).length, jobs };
 }
+
+// ---------------------------------------------------------------------------
+// Hermes memory detection
+// ---------------------------------------------------------------------------
+
+export interface HermesMemoryInfo {
+  has_memory_md: boolean;
+  has_user_md: boolean;
+  memory_md_size: number;
+  user_md_size: number;
+}
+
+export function discoverHermesMemory(stateDir: string): HermesMemoryInfo {
+  const result: HermesMemoryInfo = { has_memory_md: false, has_user_md: false, memory_md_size: 0, user_md_size: 0 };
+  const memDir = path.join(stateDir, 'memories');
+  if (!fs.existsSync(memDir)) return result;
+  const m = path.join(memDir, 'MEMORY.md');
+  const u = path.join(memDir, 'USER.md');
+  if (fs.existsSync(m)) { result.has_memory_md = true; result.memory_md_size = fs.statSync(m).size; }
+  if (fs.existsSync(u)) { result.has_user_md = true; result.user_md_size = fs.statSync(u).size; }
+  return result;
+}

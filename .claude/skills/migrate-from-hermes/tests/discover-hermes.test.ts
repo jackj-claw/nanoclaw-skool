@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { resolveStateDir, parseHermesConfig, parseHermesCronJobs } from '../scripts/discover-hermes';
+import {
+  resolveStateDir,
+  parseHermesConfig,
+  parseHermesCronJobs,
+  discoverHermesMemory,
+} from '../scripts/discover-hermes';
 
 describe('resolveStateDir', () => {
   it('returns explicit --state-dir arg when it exists', () => {
@@ -100,5 +105,38 @@ describe('parseHermesCronJobs', () => {
 
   it('returns empty when jobs array missing', () => {
     expect(parseHermesCronJobs('{}')).toEqual({ total: 0, enabled: 0, jobs: [] });
+  });
+});
+
+describe('discoverHermesMemory', () => {
+  it('detects MEMORY.md and USER.md with sizes', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-mem-'));
+    try {
+      const memDir = path.join(tmp, 'memories');
+      fs.mkdirSync(memDir);
+      fs.writeFileSync(path.join(memDir, 'MEMORY.md'), '# mem content');
+      fs.writeFileSync(path.join(memDir, 'USER.md'), '# user content here');
+      const r = discoverHermesMemory(tmp);
+      expect(r.has_memory_md).toBe(true);
+      expect(r.has_user_md).toBe(true);
+      expect(r.memory_md_size).toBeGreaterThan(0);
+      expect(r.user_md_size).toBeGreaterThan(0);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('returns all false/0 when memories dir absent', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-nomem-'));
+    try {
+      expect(discoverHermesMemory(tmp)).toEqual({
+        has_memory_md: false,
+        has_user_md: false,
+        memory_md_size: 0,
+        user_md_size: 0,
+      });
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });
