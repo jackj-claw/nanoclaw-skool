@@ -2,13 +2,14 @@
 
 ## Progress
 - [x] Phase 0: Discovery
-- [x] Phase 1: Groups and Architecture (main group registered)
-- [x] Phase 2: Settings from Config (timezone, assistant_name, container runtime)
-- [x] Phase 3: Identity and Memory (global/CLAUDE.md + main/{soul,user}.md)
-- [ ] Phase 4: Channel Credentials
-- [ ] Phase 5: Scheduled Tasks
-- [ ] Phase 6: Webhooks and Other Config
-- [ ] Phase 7: Summary
+- [x] Phase 1: Groups and Architecture (main group registered; specialists scaffolded for eve/sam/syd/wholesale but not yet registered — awaiting actual Telegram channels)
+- [x] Phase 2: Settings from Config (timezone, assistant_name, container runtime=apple-container, plist PATH+CREDENTIAL_PROXY_HOST wired)
+- [x] Phase 3: Identity and Memory (global/CLAUDE.md + main/{CLAUDE,soul,user}.md + telegram_{eve,sam,syd,wholesale}/{CLAUDE,soul,user}.md all on draft mode)
+- [x] Phase C.1: Service running as launchd `com.nanoclaw`. Telegram bot @nanoclawjack_bot connected. Acceptance ping delivered to Jack.
+- [ ] Phase 4: Channel Credentials (OneCLI vault population for Shopify/Xero/WHOOP/Meta; Gmail tokens already in vault)
+- [ ] Phase 5: Scheduled Tasks (port 45 Hermes crons — deferred to Plan D)
+- [ ] Phase 6: Register specialist JIDs once Telegram channels exist for Eve/Sam/Syd/Wholesale
+- [ ] Phase 7: Cutover from Hermes to NanoClaw on the production Telegram bot
 
 ## Discovery (2026-04-21)
 - STATE_DIR: /Users/claw/.hermes
