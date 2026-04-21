@@ -122,6 +122,22 @@ describe('parseHermesCronJobs', () => {
   it('returns empty when jobs array missing', () => {
     expect(parseHermesCronJobs('{}')).toEqual({ total: 0, enabled: 0, jobs: [] });
   });
+
+  it('filters out null or non-object job entries', () => {
+    const payload = {
+      jobs: [
+        { id: 'a', name: 'ok', enabled: true, schedule: { expr: '* * * * *' } },
+        null,
+        'not-an-object',
+        42,
+        { id: 'b', name: 'ok2', enabled: false, schedule: { expr: '0 * * * *' } },
+      ],
+    };
+    const r = parseHermesCronJobs(JSON.stringify(payload));
+    expect(r.total).toBe(2);
+    expect(r.enabled).toBe(1);
+    expect(r.jobs.map((j) => j.id)).toEqual(['a', 'b']);
+  });
 });
 
 describe('discoverHermesMemory', () => {
