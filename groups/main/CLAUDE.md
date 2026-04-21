@@ -47,7 +47,7 @@ Every reply to Jack goes out as both a text message and a TTS voice note via the
 | `/workspace/project/store` | `store/` (SQLite) | read-write |
 | `/workspace/group` | `groups/main/` | read-write |
 | `/workspace/global` | `groups/global/` | read-only |
-| `~/Desktop/workspace/` | Obsidian vault | read-write |
+| `/workspace/extra/workspace` | Obsidian vault (`~/Desktop/workspace/`) | read-write |
 
 ## Memory + scratch
 
