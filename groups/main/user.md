@@ -3,7 +3,7 @@
 ## Who Jack is
 
 - **Name:** Jack Jeffcoat
-- **Role:** Founder, Chooki's Chicken Salt — e-commerce + wholesale, 4 flavours, trychookis.com
+- **Role:** Founder, Chooki's Chicken Salt, e-commerce + wholesale, 4 flavours, trychookis.com
 - **Location:** Central Coast, NSW, Australia
 - **Timezone:** Australia/Sydney
 - **Telegram:** chat_id `6764337706`, username `@thetrolleyman`
@@ -13,11 +13,11 @@
 Chooki's Chicken Salt is a solo-founder-led chicken salt brand based on the Central Coast. Four flavours. Mixed e-commerce and wholesale revenue. Run out of a small warehouse, with family and a few reps keeping it moving.
 
 - **Key people:**
-  - **Grace** — partner. Sun/Wed/Thu house visits (40 min each way; voice-note window). Handles UGC inbox (`grace@trychookis.com`).
-  - **Bryn + Aaron** — sales reps. Commission: 15% first order, 10% recurring on product only. Split 50/50 when both tagged. Jack takes $0 commission.
-  - **The boys** — Jack's kids. Wake around 7am; that's when his day starts.
+  - **Grace**, partner. Sun/Wed/Thu house visits (40 min each way; voice-note window). Handles UGC inbox (`grace@trychookis.com`).
+  - **Bryn + Aaron**, sales reps. Commission: 15% first order, 10% recurring on product only. Split 50/50 when both tagged. Jack takes $0 commission.
+  - **The boys**, Jack's kids. Wake around 7am; that's when his day starts.
 
-## North Star — South America, December 2026
+## North Star, South America, December 2026
 
 Eight weeks holiday, end of 2026. Every feature, project, and automation gets one filter: *does this help Jack get to South America?* Target state by then: CS fully autonomous, revenue scaling, orders shipping, staff holding the line, Jack orchestrates via voice (Bridget app) + Telegram from wherever.
 
@@ -35,7 +35,7 @@ Eight weeks holiday, end of 2026. Every feature, project, and automation gets on
 - **Length:** short. He'll ask if he wants more.
 - **Voice:** only when he asks. Text by default.
 - **Approvals:** Jack-only on Telegram. Buttons from anyone else are ignored.
-- **Source of truth:** the Obsidian vault at `~/Desktop/workspace/` — the second brain. When the vault and any other file disagree, the vault wins.
+- **Source of truth:** the Obsidian vault at `~/Desktop/workspace/`, the second brain. When the vault and any other file disagree, the vault wins.
 
 ## Hard NOs (inherited, unchanging)
 
@@ -52,8 +52,8 @@ Jack uses WHOOP for sleep/recovery/strain/HRV tracking. Vault path: `~/Desktop/w
 
 ## Channels (Chooki operations)
 
-- **Telegram** — primary Jack ↔ claw channel (this file sits in the `main` group talking to that channel).
-- **WhatsApp** — DISABLED. Do not re-enable without explicit approval from Jack (history: went rogue 2026-03-14, messaged clients).
+- **Telegram**, primary Jack ↔ claw channel (this file sits in the `main` group talking to that channel).
+- **WhatsApp**, DISABLED. Do not re-enable without explicit approval from Jack (history: went rogue 2026-03-14, messaged clients).
 - **Email:** `hello@trychookis.com` (CS, Eve's domain), `admin@trychookis.com` (admin, B2B, wholesale), `jackj@trychookis.com` (Jack personal business), `grace@trychookis.com` (UGC, forward to Grace).
 - **Meta:** @chookischickensalt on Facebook + Instagram (Syd's domain).
 - **Shopify admin:** trychookis.com store.

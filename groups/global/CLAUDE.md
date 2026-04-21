@@ -116,13 +116,13 @@ If a user wants tasks running more than ~2x daily and a script can't reduce agen
 
 ---
 
-# Chooki's Chicken Salt — Shared Operating Context
+# Chooki's Chicken Salt, Shared Operating Context
 
 This file loads into every group container as shared ground truth. Every agent working on Chooki's business starts here. Per-group `CLAUDE.md`, `soul.md`, and `user.md` add specifics on top.
 
 ## The business
 
-**Chooki's Chicken Salt** — chicken salt brand, 4 flavours, e-commerce + wholesale. Central Coast, NSW, Australia. Website trychookis.com. Timezone Australia/Sydney.
+**Chooki's Chicken Salt**, chicken salt brand, 4 flavours, e-commerce + wholesale. Central Coast, NSW, Australia. Website trychookis.com. Timezone Australia/Sydney.
 
 - **Founder:** Jack Jeffcoat (`@thetrolleyman` on Telegram, chat_id `6764337706`)
 - **Partner:** Grace (UGC inbox: `grace@trychookis.com`)
@@ -132,7 +132,7 @@ This file loads into every group container as shared ground truth. Every agent w
 
 The vault at `~/Desktop/workspace/` is Chooki's compounding knowledge. Read-only by default; Jack writes the ground truth, agents update daily logs and decision records as they work.
 
-**Never assume. Check the vault first.** For any business question — products, pricing, wholesale, SOPs, people, recent context, decisions — the vault is the first source of truth, before memory files, before API state, before guessing.
+**Never assume. Check the vault first.** For any business question, products, pricing, wholesale, SOPs, people, recent context, decisions, the vault is the first source of truth, before memory files, before API state, before guessing.
 
 **First read order when researching a topic:**
 1. `Home.md`
@@ -142,16 +142,16 @@ The vault at `~/Desktop/workspace/` is Chooki's compounding knowledge. Read-only
 5. For execution: `sops/<relevant-sop>.md` or `3-SOPs/<area>.md`
 
 **Vault layout:**
-- `1-Projects/` — active projects (WHOOP, CS Phase 2, etc.)
-- `2-Contacts/` and `4-Contacts/` — people, suppliers, wholesale contacts
-- `2-Operations/` — control hubs (Wholesale pipeline etc.)
-- `3-SOPs/` and `sops/` — processes and execution rules (both exist, both authoritative for their zone)
-- `4-Products/` — product + pricing facts
-- `5-Agents/` — agent role definitions (Claw, Eve, Sam, Syd, etc.)
-- `6-Decisions/Decision Log.md` — explicit decisions, authoritative for what was agreed
-- `7-Metrics/` — business dashboard and KPIs
-- `8-Daily/YYYY-MM-DD.md` — what happened today; agents log here after meaningful actions
-- `9-Reports/` — generated analysis
+- `1-Projects/`, active projects (WHOOP, CS Phase 2, etc.)
+- `2-Contacts/` and `4-Contacts/`, people, suppliers, wholesale contacts
+- `2-Operations/`, control hubs (Wholesale pipeline etc.)
+- `3-SOPs/` and `sops/`, processes and execution rules (both exist, both authoritative for their zone)
+- `4-Products/`, product + pricing facts
+- `5-Agents/`, agent role definitions (Claw, Eve, Sam, Syd, etc.)
+- `6-Decisions/Decision Log.md`, explicit decisions, authoritative for what was agreed
+- `7-Metrics/`, business dashboard and KPIs
+- `8-Daily/YYYY-MM-DD.md`, what happened today; agents log here after meaningful actions
+- `9-Reports/`, generated analysis
 
 **Source precedence when sources disagree:**
 1. Specific leaf note in numbered folders
@@ -164,9 +164,9 @@ The vault at `~/Desktop/workspace/` is Chooki's compounding knowledge. Read-only
 
 ## Hard rules every agent follows
 
-1. **No em dashes (—) in customer-facing text.** Emails, Telegram replies to customers, social replies, drafts. Ever. Use commas, periods, colons, or rewrite. The humanizer skill can introduce them, so re-check after humanizer runs. Em dashes are the #1 AI tell.
+1. **No em dashes (U+2014) in customer-facing text.** Emails, Telegram replies to customers, social replies, drafts. Ever. Use commas, periods, colons, or rewrite. The humanizer skill can introduce them, so re-check after humanizer runs. Em dashes are the #1 AI tell.
 2. **All customer-facing copy goes through the humanizer skill.** No exceptions.
-3. **Drafts only for customer-facing messages.** CS email, wholesale email, social reply, refund acknowledgement — queue as draft, wait for Jack's explicit approval on Telegram. Never send without.
+3. **Drafts only for customer-facing messages.** CS email, wholesale email, social reply, refund acknowledgement, queue as draft, wait for Jack's explicit approval on Telegram. Never send without.
 4. **Never fabricate product info.** Especially ingredients or allergens. Source of truth: `~/Desktop/workspace/sops/product-knowledge.md` and `~/Desktop/workspace/sops/catalogue-live-skus.md`.
 5. **Read ≠ resolved.** Email being read doesn't mean it's handled. Track resolution explicitly.
 6. **Evidence over claims.** Another agent saying "done" is not evidence. API confirmation is evidence. Verify against the source API (Gmail, Shopify, Xero) before any customer-facing action.
@@ -210,10 +210,10 @@ The main orchestrator (`claw` in the `main` group) coordinates specialist agents
   - `hello@trychookis.com` (CS) → token at `~/Desktop/workspace/.env.google.tokens`
   - `admin@trychookis.com` (admin, B2B, wholesale) → token at `~/Desktop/workspace/.env.google.admin.tokens`
   - `jackj@trychookis.com` (Jack personal business) → token at `~/Desktop/workspace/.env.google.claw.tokens`
-  - `grace@trychookis.com` (UGC, forwarded) — Grace handles directly
+  - `grace@trychookis.com` (UGC, forwarded), Grace handles directly
 - **Meta:** @chookischickensalt on Facebook + Instagram
 - **WhatsApp:** DISABLED. Do not re-enable without explicit approval (history: went rogue 2026-03-14).
 
 ## Per-group customisation
 
-Each group's `CLAUDE.md`, `soul.md`, and `user.md` add specifics on top of this file. A per-group rule overrides this file locally for that agent. This file is the common baseline — what's true no matter which agent is running.
+Each group's `CLAUDE.md`, `soul.md`, and `user.md` add specifics on top of this file. A per-group rule overrides this file locally for that agent. This file is the common baseline, what's true no matter which agent is running.
