@@ -33,38 +33,44 @@ Keep it factual and terse — this is for machine recovery after compaction, not
 
 ## Phase 0: Discovery
 
-Run the discovery script to find and summarize the OpenClaw installation:
+Run the discovery script to find and summarize the Hermes installation:
 
 ```bash
 npx tsx ${CLAUDE_SKILL_DIR}/scripts/discover-hermes.ts
 ```
 
-If the user specifies a custom path, pass it: `--state-dir <path>`
+If the user specifies a custom path, pass it: `--state-dir <path>`. The script also honours the `HERMES_STATE_DIR` environment variable.
 
-Parse the status block. Key fields: STATUS, STATE_DIR, CHANNELS, WORKSPACE_FILES, DAILY_MEMORY_FILES, SKILL_COUNT, SKILLS, CRON_JOBS, MCP_SERVERS, IDENTITY_NAME, AGENT_COUNT, AGENT_IDS.
+Parse the status block. The Hermes discovery script emits these fields:
 
-**Sanity-check the output:** The discovery script detects known structures but can silently miss data if OpenClaw's format has changed. Check `CONFIG_TOP_KEYS` and `CONFIG_CHANNEL_KEYS` — if you see keys the script didn't report on (e.g. a channel name not in CHANNELS, or a top-level section like `integrations` or `plugins`), read that section of the config directly with the Read tool. Also check `STATE_DIR_CONTENTS` for directories the script doesn't scan (e.g. unexpected folders alongside `workspace/`, `agents/`, `cron/`).
+- `STATUS` — `found` or `not_found`
+- `STATE_DIR` — path to the detected Hermes install (usually `/Users/<user>/.hermes`)
+- `MODEL`, `PROVIDER` — current orchestrator model and provider from `config.yaml` (e.g. `claude-opus-4-7` / `anthropic`)
+- `HAS_MEMORY_MD`, `HAS_USER_MD` — whether `memories/MEMORY.md` and `memories/USER.md` exist
+- `MEMORY_MD_SIZE`, `USER_MD_SIZE` — file sizes in bytes (non-zero indicates populated)
+- `SKILLS_COUNT`, `SKILLS_NAMES` — count and comma-separated list of skills in `skills/openclaw-imports/`
+- `CRON_TOTAL`, `CRON_ENABLED` — total and enabled job counts from `cron/jobs.json`
+- `TOOLS_DIR`, `TOOLS_SHELL`, `TOOLS_PYTHON`, `TOOLS_TOTAL` — Jack's user tool workspace (default `~/Desktop/workspace/tools/`; override with `HERMES_TOOLS_DIR`)
 
-**If STATUS=not_found:** Tell the user no Hermes installation was detected at the standard locations (`~/.hermes`). Ask if they have a custom path. If not, exit.
+**Sanity-check the output:** If `CRON_TOTAL` is 0 but the user insists they have crons, re-read `~/.hermes/cron/jobs.json` directly — the parser expects `{ "jobs": [...] }` and will silently return zero on unexpected shape. If `SKILLS_NAMES` is empty but you see skills referenced elsewhere in config, check whether the user keeps skills in a non-default path. The script does NOT enumerate channels, MCP servers, or sub-agent (sam/syd/eve) delegation configs — those are handled interactively in later phases.
+
+**If STATUS=not_found:** Tell the user no Hermes installation was detected at the standard location (`~/.hermes`). Ask if they have a custom path. If not, exit.
 
 **If STATUS=found:** Present a human-readable summary:
 
-- "I found your OpenClaw installation at `<STATE_DIR>`."
-- Identity: name from IDENTITY.md (if found)
-- Workspace files: which of SOUL.md, USER.md, MEMORY.md, IDENTITY.md exist
-- Channels: list each, note which NanoClaw supports (whatsapp, telegram, slack, discord) and which it doesn't
-- Daily memory files: count (if any)
-- Skills: count and names (from workspace, shared, personal, project locations)
-- Cron jobs: count and names
-- MCP servers: count and names
-- Agents: count (relevant for Phase 1 groups discussion)
+- "I found your Hermes installation at `<STATE_DIR>`."
+- Current model/provider: `<MODEL>` via `<PROVIDER>` (note whether it's paid API or free OAuth path)
+- Memory files: which of MEMORY.md / USER.md exist + their sizes
+- Skills: count and listing (from `skills/openclaw-imports/`)
+- Cron jobs: `<CRON_ENABLED>` enabled of `<CRON_TOTAL>` total
+- Tool scripts: `<TOOLS_TOTAL>` (`<TOOLS_SHELL>` shell, `<TOOLS_PYTHON>` python) at `<TOOLS_DIR>`
 
 Then explain the key architectural differences. Don't dump a table — paraphrase conversationally:
 
-- **Container isolation:** NanoClaw runs each agent in an isolated Linux container (Docker or Apple Container). OpenClaw runs everything in one process. This means stronger isolation but also means each group is its own sandbox.
-- **Group-based memory:** In OpenClaw, all groups under one agent share the same SOUL.md, MEMORY.md, and IDENTITY.md. In NanoClaw, each group has its own filesystem and CLAUDE.md. Shared state goes in `groups/global/CLAUDE.md` (mounted read-only into all non-main containers).
-- **Channel skills:** In Hermes, channels are configured in `config.yaml`. In NanoClaw, channels are installed as code via skills (`/add-telegram`, `/add-whatsapp`, etc.) and configured through `.env` variables.
-- **Simpler config:** NanoClaw has no config file — behavior is in the code and `CLAUDE.md` files. Credentials live in `.env` or the OneCLI vault.
+- **Container isolation:** NanoClaw runs each agent in an isolated Linux container (Docker or Apple Container). Hermes runs everything in one Python process. This means stronger isolation and better security, but each group is its own sandbox.
+- **Group-based memory:** In Hermes, the orchestrator and all delegated subagents (sam/syd/eve) share one `MEMORY.md` and `USER.md`. In NanoClaw, each group has its own filesystem and `CLAUDE.md`. Shared state goes in `groups/global/CLAUDE.md` (mounted read-only into all non-main containers).
+- **Channel skills:** In Hermes, channels are configured under `platforms:` / `platform_toolsets:` in `config.yaml`. In NanoClaw, channels are installed as code via skills (`/add-telegram`, `/add-whatsapp`, etc.) and configured through `.env` variables.
+- **Simpler config:** NanoClaw has no `config.yaml` — behaviour is in the code and `CLAUDE.md` files. Credentials live in `.env` or the OneCLI vault.
 
 AskUserQuestion: "Ready to start migrating? I'll go through each area one at a time."
 1. **Yes, let's go** — proceed to Phase 1
@@ -77,13 +83,13 @@ AskUserQuestion: "Ready to start migrating? I'll go through each area one at a t
 
 If GROUP_COUNT > 0 or AGENT_COUNT > 1, this is a critical conversation. Even with just one group, explain the model difference so the user understands what they're getting into.
 
-**OpenClaw model:** All groups routed to the same agent share one workspace — the same SOUL.md, MEMORY.md, IDENTITY.md, and tools. When you talk to the bot in your family chat or your work chat, it's the same agent with the same personality and memory. Only the session (conversation history) is separate per group.
+**Hermes model:** One orchestrator process handles everything. Delegated subagents (e.g. `sam` for wholesale, `syd` for social, `eve` for CS) run inside the same process and share the same `MEMORY.md` and `USER.md`. Only the conversation/session history differs per chat.
 
-**NanoClaw model:** Each group is a completely separate agent running in its own Linux container. Separate filesystem, separate memory, separate CLAUDE.md. The bot in your family chat and your work chat are different agents that don't know about each other — unless you explicitly share state via `groups/global/CLAUDE.md`, which is mounted read-only into all non-main containers.
+**NanoClaw model:** Each group is a completely separate agent running in its own Linux container. Separate filesystem, separate memory, separate CLAUDE.md. The bot in your CS chat and your wholesale chat are different agents that don't know about each other — unless you explicitly share state via `groups/global/CLAUDE.md`, which is mounted read-only into all non-main containers.
 
-Explain this conversationally. If the user only has one group, it's simple — just note the difference and move on. If they have multiple groups, discuss:
+Explain this conversationally. If the user only has one group, it's simple — just note the difference and move on. If they have multiple subagents in Hermes (sam/syd/eve), this is a real architectural choice to discuss:
 
-AskUserQuestion: "In OpenClaw, your groups shared the same personality and memory. In NanoClaw, each group is a fully separate agent. How would you like to handle this?"
+AskUserQuestion: "In Hermes, your subagents (sam/syd/eve) shared one memory and personality baseline. In NanoClaw, each group is a fully separate agent. How would you like to handle this?"
 
 1. **Shared personality (recommended if your groups had the same bot)** — "I'll put the shared personality, identity, and user context in `groups/global/CLAUDE.md`. Every group sees it. Each group can add its own customizations on top."
 2. **Fully separate** — "Each group gets its own independent personality and memory. Complete isolation between groups."
@@ -95,7 +101,7 @@ Remember this choice — it determines where identity and memory files go in the
 
 Before registering groups, confirm the assistant name — it's used for trigger patterns and CLAUDE.md templates.
 
-IDENTITY_NAME from discovery gives the OpenClaw name. Ask the user: "Your OpenClaw assistant was named `<IDENTITY_NAME>`. Want to keep this name in NanoClaw?" If they want a different name, ask what it should be. If IDENTITY_NAME was empty, ask them to choose a name (default: "Andy").
+The Hermes discovery script does not extract an assistant name automatically (Hermes stores identity inside `memories/USER.md` as free-form text rather than a structured `IDENTITY.md`). Ask the user directly: "What should this assistant be called in NanoClaw? (Hermes was commonly called 'Hermes' or 'Claw' — pick whatever feels right.)" Default to "Hermes" if they have no preference.
 
 The register step's `--assistant-name` flag writes `ASSISTANT_NAME` to `.env` and updates CLAUDE.md templates automatically — no manual `.env` write needed.
 
