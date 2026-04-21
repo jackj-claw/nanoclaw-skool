@@ -32,13 +32,40 @@ describe('resolveStateDir', () => {
     }
   });
 
-  it('falls back to ~/.hermes when it exists and no explicit path', () => {
-    const hermesPath = path.join(os.homedir(), '.hermes');
-    const result = resolveStateDir();
-    if (fs.existsSync(hermesPath)) {
-      expect(result).toBe(hermesPath);
-    } else {
-      expect(result).toBe(null);
+  it('returns ~/.hermes path when it exists (no explicit, no env)', () => {
+    // Point HOME at a tmpdir that contains a .hermes directory, so the default fallback is deterministic
+    const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-home-'));
+    const fakeHermes = path.join(tmpHome, '.hermes');
+    fs.mkdirSync(fakeHermes);
+    const savedHome = process.env.HOME;
+    const savedEnv = process.env.HERMES_STATE_DIR;
+    try {
+      process.env.HOME = tmpHome;
+      delete process.env.HERMES_STATE_DIR;
+      expect(resolveStateDir()).toBe(fakeHermes);
+    } finally {
+      if (savedHome === undefined) delete process.env.HOME;
+      else process.env.HOME = savedHome;
+      if (savedEnv === undefined) delete process.env.HERMES_STATE_DIR;
+      else process.env.HERMES_STATE_DIR = savedEnv;
+      fs.rmSync(tmpHome, { recursive: true, force: true });
+    }
+  });
+
+  it('returns null when no explicit, no env, and ~/.hermes does not exist', () => {
+    const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-nohome-'));
+    const savedHome = process.env.HOME;
+    const savedEnv = process.env.HERMES_STATE_DIR;
+    try {
+      process.env.HOME = tmpHome;
+      delete process.env.HERMES_STATE_DIR;
+      expect(resolveStateDir()).toBe(null);
+    } finally {
+      if (savedHome === undefined) delete process.env.HOME;
+      else process.env.HOME = savedHome;
+      if (savedEnv === undefined) delete process.env.HERMES_STATE_DIR;
+      else process.env.HERMES_STATE_DIR = savedEnv;
+      fs.rmSync(tmpHome, { recursive: true, force: true });
     }
   });
 
