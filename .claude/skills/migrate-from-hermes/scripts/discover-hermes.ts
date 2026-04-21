@@ -732,3 +732,54 @@ function main(): void {
 }
 
 main();
+
+// ---------------------------------------------------------------------------
+// Hermes config parsing
+// ---------------------------------------------------------------------------
+
+import { parse as yamlParse } from 'yaml';
+
+export interface HermesConfig {
+  model?: string;
+  provider?: string;
+  base_url?: string;
+  context_length?: number;
+  delegation?: { model?: string; provider?: string; base_url?: string };
+  fallback_model?: { model?: string; provider?: string };
+  [key: string]: unknown;
+}
+
+export function parseHermesConfig(text: string): HermesConfig {
+  if (!text.trim()) return {};
+  let parsed: unknown;
+  try { parsed = yamlParse(text); }
+  catch { return {}; }
+  if (!parsed || typeof parsed !== 'object') return {};
+  const data = parsed as Record<string, unknown>;
+  const result: HermesConfig = {};
+  const modelBlock = data.model as Record<string, unknown> | undefined;
+  if (modelBlock && typeof modelBlock === 'object') {
+    result.model = String(modelBlock.default ?? '') || undefined;
+    result.provider = String(modelBlock.provider ?? '') || undefined;
+    result.base_url = String(modelBlock.base_url ?? '') || undefined;
+    if (typeof modelBlock.context_length === 'number') {
+      result.context_length = modelBlock.context_length;
+    }
+  }
+  const delegation = data.delegation as Record<string, unknown> | undefined;
+  if (delegation && typeof delegation === 'object') {
+    result.delegation = {
+      model: delegation.model ? String(delegation.model) : undefined,
+      provider: delegation.provider ? String(delegation.provider) : undefined,
+      base_url: delegation.base_url ? String(delegation.base_url) : undefined,
+    };
+  }
+  const fallback = data.fallback_model as Record<string, unknown> | undefined;
+  if (fallback && typeof fallback === 'object') {
+    result.fallback_model = {
+      model: fallback.model ? String(fallback.model) : undefined,
+      provider: fallback.provider ? String(fallback.provider) : undefined,
+    };
+  }
+  return result;
+}
