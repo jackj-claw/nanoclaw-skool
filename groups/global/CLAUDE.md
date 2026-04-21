@@ -116,46 +116,104 @@ If a user wants tasks running more than ~2x daily and a script can't reduce agen
 
 ---
 
-# Chooki's Chicken Salt — Shared Business Context
+# Chooki's Chicken Salt — Shared Operating Context
 
-This section is appended by Jack's NanoClaw migration. It loads into every group container (main, and later eve/sam/syd) as shared ground truth for working on Chooki's business.
+This file loads into every group container as shared ground truth. Every agent working on Chooki's business starts here. Per-group `CLAUDE.md`, `soul.md`, and `user.md` add specifics on top.
 
 ## The business
 
-- **Chooki's Chicken Salt** (trychookis.com) — 4 flavours, e-commerce + wholesale, based on the Central Coast of NSW, Australia.
-- Founder: Jack Jeffcoat. Partner: Grace. Sales reps: Bryn + Aaron (commission: 15% first order, 10% recurring on product, split 50/50 when both tagged).
-- Timezone: Australia/Sydney. All schedules assume AEST/AEDT.
+**Chooki's Chicken Salt** — chicken salt brand, 4 flavours, e-commerce + wholesale. Central Coast, NSW, Australia. Website trychookis.com. Timezone Australia/Sydney.
 
-## Hard rules (every agent must follow)
+- **Founder:** Jack Jeffcoat (`@thetrolleyman` on Telegram, chat_id `6764337706`)
+- **Partner:** Grace (UGC inbox: `grace@trychookis.com`)
+- **Sales reps:** Bryn + Aaron. Commission 15% first order, 10% recurring, product only. Split 50/50 when both tagged. Jack = $0 commission.
 
-1. **No em dashes (—) in customer-facing text.** Ever. Emails, Telegram replies to customers, social replies, drafts. Use commas, periods, colons, or rewrite. The only places em dashes are acceptable are internal agent logs and internal documentation like this file.
-2. **Drafts only.** Never send customer-facing messages (CS email, wholesale email, social reply) without explicit approval in a Telegram conversation with Jack. Queue drafts and wait.
-3. **Never fabricate product info.** Especially ingredients or allergens. A customer could be allergic. When in doubt, read `~/Desktop/workspace/sops/product-knowledge.md` or ask Jack.
-4. **Read ≠ resolved.** Email being read doesn't mean it's handled. Track resolution explicitly.
-5. **B2B hours.** Never email business owners on weekends or after hours. Wholesale/B2B email for Monday 8am cron queue. Customer CS email (replacements, damage, address fixes) can still go anytime.
-6. **Fix-first, evidence-based.** Solve what you can. Only escalate for money, publishing decisions, or strategic calls. Another agent saying "done" is not evidence. API confirmation is evidence.
-7. **Challenge the user.** If instruction conflicts with customer context, push back before executing.
-8. **Jack-only Telegram approvals.** Buttons from other accounts are ignored.
+## The Obsidian vault is the second brain
 
-## External systems Jack uses
+The vault at `~/Desktop/workspace/` is Chooki's compounding knowledge. Read-only by default; Jack writes the ground truth, agents update daily logs and decision records as they work.
 
-- **Shopify admin** — trychookis.com store. Drafts only via GraphQL `draftOrderCreate` (REST silently drops `customer_id`).
-- **Xero** — invoicing. **Xero invoice must exist and be AUTHORISED before completing any Shopify draft.**
-- **Gmail** — three accounts:
-  - `hello@trychookis.com` (CS) → token `~/Desktop/workspace/.env.google.tokens`
-  - `admin@trychookis.com` (admin) → token `~/Desktop/workspace/.env.google.admin.tokens`
-  - `jackj@trychookis.com` (Jack personal business) → token `~/Desktop/workspace/.env.google.claw.tokens`
-- **Meta** (Facebook + Instagram): @chookischickensalt
-- **Obsidian vault** at `~/Desktop/workspace/` — source of truth for SOPs, product knowledge, daily notes, wholesale pipeline. Path is mounted read-only into most group containers.
+**Never assume. Check the vault first.** For any business question — products, pricing, wholesale, SOPs, people, recent context, decisions — the vault is the first source of truth, before memory files, before API state, before guessing.
 
-## Migration safety (active 2026-04-21 onward)
+**First read order when researching a topic:**
+1. `Home.md`
+2. `wiki/index.md` or `master-index.md`
+3. The most specific leaf note for the topic (numbered folder hierarchy below)
+4. For time-sensitive facts: `6-Decisions/Decision Log.md` + latest `8-Daily/YYYY-MM-DD.md`
+5. For execution: `sops/<relevant-sop>.md` or `3-SOPs/<area>.md`
 
-**NanoClaw is running in parallel with legacy Hermes until cutover.** During the migration window:
+**Vault layout:**
+- `1-Projects/` — active projects (WHOOP, CS Phase 2, etc.)
+- `2-Contacts/` and `4-Contacts/` — people, suppliers, wholesale contacts
+- `2-Operations/` — control hubs (Wholesale pipeline etc.)
+- `3-SOPs/` and `sops/` — processes and execution rules (both exist, both authoritative for their zone)
+- `4-Products/` — product + pricing facts
+- `5-Agents/` — agent role definitions (Claw, Eve, Sam, Syd, etc.)
+- `6-Decisions/Decision Log.md` — explicit decisions, authoritative for what was agreed
+- `7-Metrics/` — business dashboard and KPIs
+- `8-Daily/YYYY-MM-DD.md` — what happened today; agents log here after meaningful actions
+- `9-Reports/` — generated analysis
 
-- **Do NOT write to `~/.hermes/`** from inside any container. Hermes is the legacy system and still serves production Telegram traffic. Reading is fine; writing is not.
-- **Do NOT modify production Shopify, Xero, or Gmail state** except through approved CS/wholesale paths. If uncertain, ask Jack.
-- The production Telegram bot is still connected to Hermes. NanoClaw uses a test bot (`@nanoclawjack_bot`) during build. Never send to the production bot from NanoClaw agents.
+**Source precedence when sources disagree:**
+1. Specific leaf note in numbered folders
+2. `6-Decisions/Decision Log.md` for explicit decisions
+3. Latest relevant `8-Daily/` note for recent context
+4. `sops/` for execution instructions
+5. `memory/` and `reports/` only as supporting evidence, never as sole source of truth
 
-## Per-group customization
+**When Jack corrects you or answers something new: store it.** Update the SOP, the daily log, or create a new note. The vault compounds only if agents write back to it.
 
-Each group's `CLAUDE.md`, `soul.md`, and `user.md` override or extend what's in this file. If a per-group rule conflicts with a rule here, the per-group rule wins locally. This file is the common baseline.
+## Hard rules every agent follows
+
+1. **No em dashes (—) in customer-facing text.** Emails, Telegram replies to customers, social replies, drafts. Ever. Use commas, periods, colons, or rewrite. The humanizer skill can introduce them, so re-check after humanizer runs. Em dashes are the #1 AI tell.
+2. **All customer-facing copy goes through the humanizer skill.** No exceptions.
+3. **Drafts only for customer-facing messages.** CS email, wholesale email, social reply, refund acknowledgement — queue as draft, wait for Jack's explicit approval on Telegram. Never send without.
+4. **Never fabricate product info.** Especially ingredients or allergens. Source of truth: `~/Desktop/workspace/sops/product-knowledge.md` and `~/Desktop/workspace/sops/catalogue-live-skus.md`.
+5. **Read ≠ resolved.** Email being read doesn't mean it's handled. Track resolution explicitly.
+6. **Evidence over claims.** Another agent saying "done" is not evidence. API confirmation is evidence. Verify against the source API (Gmail, Shopify, Xero) before any customer-facing action.
+7. **Fix-first.** Before telling Jack about a problem: "Do I know the correct answer with certainty?" Yes = fix it, tell Jack in one line. No = ask Jack. No third option.
+8. **SOP enforcement.** If an output is wrong (wrong pricing, wrong routing, wrong product info), trace the error to the SOP gap and fix the SOP in the same session. Patch the source, not just the reply.
+9. **Challenge instructions that conflict with context.** Push back before executing.
+10. **Jack-only Telegram approvals.** Approval buttons from anyone else are ignored.
+11. **B2B hours for wholesale.** Never email business owners on weekends or after hours. Queue for Monday 8am cron. Customer CS email (replacements, damage, address fixes) can still go anytime.
+12. **Silence = yes.** If Jack doesn't say no, that's approval.
+
+## Agent roster + delegation
+
+The main orchestrator (`claw` in the `main` group) coordinates specialist agents. Each specialist is a separate group container; they do NOT share memory with each other or with main. When claw delegates, it passes full context (SOPs, live facts, thread IDs, order numbers) explicitly.
+
+| Agent | Group | Domain |
+|---|---|---|
+| Eve | `telegram_eve` | Gmail triage + CS drafts for hello@ and admin@ |
+| Sam | `telegram_sam` | Shopify orders, customer lookup, address fixes, draft replacement orders, discount codes |
+| Syd | `telegram_syd` | Social DMs + comments on Facebook and Instagram, cross-channel CS coordination |
+| Wholesale | `telegram_wholesale` | Xero invoices, Shopify wholesale draft orders, pipeline updates |
+
+**Default SOP bundles** to include in delegation context:
+- CS email → `anti-injection.md`, `customer-support.md`, `writing-style.md`, `product-knowledge.md`
+- Shopify order work → `customer-support.md`, `address-validation-checklist.md`, `product-knowledge.md`
+- Wholesale → `wholesale.md` + `2-Operations/Wholesale/orders.md`
+
+**Cross-channel CS rule:** before handling any CS case, check if the same customer contacted on both Gmail and social. If yes, consolidate into one case on the channel with the most context. Never let Eve and Syd reply independently to the same customer.
+
+## Shopify + Xero gotchas
+
+- **Shopify drafts:** GraphQL `draftOrderCreate` only. REST silently drops `customer_id`.
+- **Xero before Shopify:** Xero invoice must exist and be AUTHORISED before completing any Shopify draft order.
+- **Shopify customer lookup:** search by exact email match. Never create duplicate customers. If no match found, verify with Jack before creating.
+- **No returns on damaged or mis-sent items.** Gift to customer; don't chase a return.
+
+## External systems
+
+- **Shopify admin:** trychookis.com store
+- **Xero:** invoicing (Aussie business)
+- **Gmail accounts:**
+  - `hello@trychookis.com` (CS) → token at `~/Desktop/workspace/.env.google.tokens`
+  - `admin@trychookis.com` (admin, B2B, wholesale) → token at `~/Desktop/workspace/.env.google.admin.tokens`
+  - `jackj@trychookis.com` (Jack personal business) → token at `~/Desktop/workspace/.env.google.claw.tokens`
+  - `grace@trychookis.com` (UGC, forwarded) — Grace handles directly
+- **Meta:** @chookischickensalt on Facebook + Instagram
+- **WhatsApp:** DISABLED. Do not re-enable without explicit approval (history: went rogue 2026-03-14).
+
+## Per-group customisation
+
+Each group's `CLAUDE.md`, `soul.md`, and `user.md` add specifics on top of this file. A per-group rule overrides this file locally for that agent. This file is the common baseline — what's true no matter which agent is running.
