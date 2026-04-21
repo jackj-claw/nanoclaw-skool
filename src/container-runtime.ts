@@ -30,9 +30,6 @@ function detectHostGateway(): string {
   return '192.168.64.1';
 }
 
-/** Hostname containers use to reach the host machine. */
-export const CONTAINER_HOST_GATEWAY = 'host.docker.internal';
-
 /**
  * Address the credential proxy binds to.
  * Apple Container (macOS): must be set explicitly via CREDENTIAL_PROXY_HOST
