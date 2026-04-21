@@ -68,28 +68,28 @@ function parseArgs(): { stateDir?: string } {
 // Path resolution
 // ---------------------------------------------------------------------------
 
-function resolveStateDir(explicit?: string): string | null {
+export function resolveStateDir(explicit?: string): string | null {
   const home = os.homedir();
   const candidates: string[] = [];
 
   if (explicit) {
-    // Expand ~ prefix
     const expanded = explicit.startsWith('~')
       ? path.join(home, explicit.slice(1))
       : explicit;
     candidates.push(expanded);
+  } else {
+    const env = process.env.HERMES_STATE_DIR;
+    if (env) candidates.push(env);
+    candidates.push(path.join(home, '.hermes'));
   }
 
-  if (process.env.OPENCLAW_STATE_DIR) {
-    candidates.push(process.env.OPENCLAW_STATE_DIR);
-  }
-
-  candidates.push(path.join(home, '.openclaw'));
-  candidates.push(path.join(home, '.clawdbot'));
-
-  for (const dir of candidates) {
-    if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-      return dir;
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c) && fs.statSync(c).isDirectory()) {
+        return c;
+      }
+    } catch {
+      // Permission/race errors — skip
     }
   }
   return null;
