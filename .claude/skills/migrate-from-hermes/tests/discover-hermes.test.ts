@@ -45,6 +45,19 @@ describe('resolveStateDir', () => {
   it('returns null when explicit path does not exist', () => {
     expect(resolveStateDir('/does/not/exist/hermes')).toBe(null);
   });
+
+  it('uses HERMES_STATE_DIR env var when no explicit path', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-env-'));
+    const saved = process.env.HERMES_STATE_DIR;
+    try {
+      process.env.HERMES_STATE_DIR = tmp;
+      expect(resolveStateDir()).toBe(tmp);
+    } finally {
+      if (saved === undefined) delete process.env.HERMES_STATE_DIR;
+      else process.env.HERMES_STATE_DIR = saved;
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('parseHermesConfig', () => {
