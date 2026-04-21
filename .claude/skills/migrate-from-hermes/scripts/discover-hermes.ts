@@ -783,3 +783,48 @@ export function parseHermesConfig(text: string): HermesConfig {
   }
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Hermes cron jobs parsing
+// ---------------------------------------------------------------------------
+
+export interface HermesCronJob {
+  id: string;
+  name: string;
+  enabled: boolean;
+  cron_expr?: string;
+  script?: string;
+  skill?: string | null;
+  prompt?: string;
+  chat_id?: string;
+  platform?: string;
+}
+
+export interface HermesCronJobsResult {
+  total: number;
+  enabled: number;
+  jobs: HermesCronJob[];
+}
+
+export function parseHermesCronJobs(text: string): HermesCronJobsResult {
+  let parsed: unknown;
+  try { parsed = JSON.parse(text); }
+  catch { return { total: 0, enabled: 0, jobs: [] }; }
+  if (!parsed || typeof parsed !== 'object') return { total: 0, enabled: 0, jobs: [] };
+  const rawJobs = (parsed as { jobs?: unknown }).jobs;
+  if (!Array.isArray(rawJobs)) return { total: 0, enabled: 0, jobs: [] };
+
+  const jobs: HermesCronJob[] = rawJobs.map((j: any) => ({
+    id: String(j.id ?? ''),
+    name: String(j.name ?? ''),
+    enabled: Boolean(j.enabled),
+    cron_expr: j.schedule?.expr ? String(j.schedule.expr) : undefined,
+    script: j.script ?? undefined,
+    skill: j.skill ?? null,
+    prompt: j.prompt ? String(j.prompt).slice(0, 200) : undefined,
+    chat_id: j.origin?.chat_id ? String(j.origin.chat_id) : undefined,
+    platform: j.origin?.platform ? String(j.origin.platform) : undefined,
+  }));
+
+  return { total: jobs.length, enabled: jobs.filter((j) => j.enabled).length, jobs };
+}

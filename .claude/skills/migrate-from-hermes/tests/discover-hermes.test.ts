@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { resolveStateDir, parseHermesConfig } from '../scripts/discover-hermes';
+import { resolveStateDir, parseHermesConfig, parseHermesCronJobs } from '../scripts/discover-hermes';
 
 describe('resolveStateDir', () => {
   it('returns explicit --state-dir arg when it exists', () => {
@@ -75,5 +75,30 @@ fallback_model:
 
   it('returns {} on empty', () => {
     expect(parseHermesConfig('')).toEqual({});
+  });
+});
+
+describe('parseHermesCronJobs', () => {
+  it('extracts enabled + disabled jobs', () => {
+    const payload = {
+      jobs: [
+        { id: 'a', name: 'n1', enabled: true, schedule: { kind: 'cron', expr: '0 8 * * 5' }, script: 's.py', skill: null, prompt: 'p', origin: { platform: 'telegram', chat_id: '123' }},
+        { id: 'b', name: 'n2', enabled: false, schedule: { kind: 'cron', expr: '0 12 * * *' }},
+      ],
+    };
+    const r = parseHermesCronJobs(JSON.stringify(payload));
+    expect(r.total).toBe(2);
+    expect(r.enabled).toBe(1);
+    expect(r.jobs[0].cron_expr).toBe('0 8 * * 5');
+    expect(r.jobs[0].script).toBe('s.py');
+    expect(r.jobs[0].chat_id).toBe('123');
+  });
+
+  it('returns empty on malformed JSON', () => {
+    expect(parseHermesCronJobs('not json')).toEqual({ total: 0, enabled: 0, jobs: [] });
+  });
+
+  it('returns empty when jobs array missing', () => {
+    expect(parseHermesCronJobs('{}')).toEqual({ total: 0, enabled: 0, jobs: [] });
   });
 });
