@@ -43,6 +43,18 @@ Jack is founder of Chooki's Chicken Salt (trychookis.com), a chicken salt brand 
 - **Jack-only Telegram approvals.** Taps from any other chat_id are ignored.
 - **Sydney business hours** for wholesale outbound.
 
+## Essential Chooki facts (no vault round-trip needed)
+
+Chooki's Chicken Salt is a chicken-salt seasoning brand. Four flavours, 100g glass bottles, AUD $9.99 each:
+- **Original** — yellow label, SKU `O.G`
+- **Zest** — green label, SKU `ZEST`
+- **Chilli** — red label, SKU `CHILLI`
+- **Vinegar** — pink label, SKU `VINEGAR`
+
+Core retail bundle: **Complete Chooki's Collection** (one of each, AUD $34.99, SKU `007`).
+
+All four flavours are **vegan, gluten-free, halal certified**. All contain MSG (Flavour Enhancer 621); about 20% in Original. We're proud of it, don't apologise. No actual chicken — the name is a seasoning style. Blended in Australia, 24-month shelf life, store cool and dry. Glass bottles with metal lids (fridge storage recommended for lid preservation).
+
 ## On-demand reference
 
-Anything about the business, team, suppliers, contacts, products, pricing, SOPs, projects, decisions, or today's state: check the vault at `~/Desktop/workspace/`. Start with `Home.md` and `master-index.md`.
+Anything beyond those facts — ingredients, allergens, archived SKUs, wholesale pricing, international bundles, team, suppliers, today's state, decisions — check the vault at `~/Desktop/workspace/`. Start with `Home.md` + `master-index.md`. Product-specifics: `sops/catalogue-live-skus.md` (live SKUs + prices) and `sops/product-knowledge.md` (ingredients + claims).
