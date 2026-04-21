@@ -13,12 +13,32 @@ logs/
 groups/*
 !groups/main/
 !groups/global/
+!groups/telegram_eve/
+!groups/telegram_sam/
+!groups/telegram_syd/
+!groups/telegram_wholesale/
 groups/main/*
 groups/global/*
+groups/telegram_eve/*
+groups/telegram_sam/*
+groups/telegram_syd/*
+groups/telegram_wholesale/*
 !groups/main/CLAUDE.md
 !groups/main/soul.md
 !groups/main/user.md
 !groups/global/CLAUDE.md
+!groups/telegram_eve/CLAUDE.md
+!groups/telegram_eve/soul.md
+!groups/telegram_eve/user.md
+!groups/telegram_sam/CLAUDE.md
+!groups/telegram_sam/soul.md
+!groups/telegram_sam/user.md
+!groups/telegram_syd/CLAUDE.md
+!groups/telegram_syd/soul.md
+!groups/telegram_syd/user.md
+!groups/telegram_wholesale/CLAUDE.md
+!groups/telegram_wholesale/soul.md
+!groups/telegram_wholesale/user.md
 
 # Secrets
 *.keys.json
