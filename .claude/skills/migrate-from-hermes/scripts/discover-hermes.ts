@@ -867,3 +867,29 @@ export function discoverHermesSkills(stateDir: string): HermesSkillsInfo {
   const names = entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
   return { count: names.length, names };
 }
+
+// ---------------------------------------------------------------------------
+// User tools detection (~/Desktop/workspace/tools or similar)
+// ---------------------------------------------------------------------------
+
+export interface UserToolsInfo {
+  dir: string;
+  shell_count: number;
+  python_count: number;
+  total: number;
+}
+
+export function discoverUserTools(toolsDir: string): UserToolsInfo {
+  const result: UserToolsInfo = { dir: toolsDir, shell_count: 0, python_count: 0, total: 0 };
+  if (!fs.existsSync(toolsDir)) return result;
+  try {
+    const entries = fs.readdirSync(toolsDir, { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isFile()) continue;
+      if (e.name.endsWith('.sh')) result.shell_count++;
+      else if (e.name.endsWith('.py')) result.python_count++;
+    }
+  } catch {}
+  result.total = result.shell_count + result.python_count;
+  return result;
+}

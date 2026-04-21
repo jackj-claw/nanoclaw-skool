@@ -8,6 +8,7 @@ import {
   parseHermesCronJobs,
   discoverHermesMemory,
   discoverHermesSkills,
+  discoverUserTools,
 } from '../scripts/discover-hermes';
 
 describe('resolveStateDir', () => {
@@ -167,5 +168,34 @@ describe('discoverHermesSkills', () => {
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
+  });
+});
+
+describe('discoverUserTools', () => {
+  it('counts .sh and .py files', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-tools-'));
+    try {
+      fs.writeFileSync(path.join(tmp, 'a.sh'), '#!/bin/bash\n');
+      fs.writeFileSync(path.join(tmp, 'b.sh'), '#!/bin/bash\n');
+      fs.writeFileSync(path.join(tmp, 'c.py'), 'print(1)\n');
+      fs.writeFileSync(path.join(tmp, 'ignore.txt'), 'x');
+      fs.mkdirSync(path.join(tmp, 'subdir'));
+      const r = discoverUserTools(tmp);
+      expect(r.shell_count).toBe(2);
+      expect(r.python_count).toBe(1);
+      expect(r.total).toBe(3);
+      expect(r.dir).toBe(tmp);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('returns zeros when tools dir absent', () => {
+    expect(discoverUserTools('/does/not/exist/tools')).toEqual({
+      dir: '/does/not/exist/tools',
+      shell_count: 0,
+      python_count: 0,
+      total: 0,
+    });
   });
 });
