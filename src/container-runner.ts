@@ -78,7 +78,8 @@ function buildVolumeMounts(
     });
 
     // .env shadowing is handled inside the container entrypoint via mount --bind
-    // (Apple Container only supports directory mounts, not file mounts like /dev/null)
+    // (Apple Container only supports directory mounts, not file mounts like /dev/null).
+    // Credentials are injected by the credential proxy, never exposed to containers.
 
     // Main gets writable access to the store (SQLite DB) so it can
     // query and write to the database directly.
