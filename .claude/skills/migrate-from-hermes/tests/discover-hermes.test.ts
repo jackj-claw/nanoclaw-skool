@@ -7,6 +7,7 @@ import {
   parseHermesConfig,
   parseHermesCronJobs,
   discoverHermesMemory,
+  discoverHermesSkills,
 } from '../scripts/discover-hermes';
 
 describe('resolveStateDir', () => {
@@ -135,6 +136,34 @@ describe('discoverHermesMemory', () => {
         memory_md_size: 0,
         user_md_size: 0,
       });
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('discoverHermesSkills', () => {
+  it('enumerates skill subdirectories sorted', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-skills-'));
+    try {
+      const dir = path.join(tmp, 'skills', 'openclaw-imports');
+      fs.mkdirSync(dir, { recursive: true });
+      fs.mkdirSync(path.join(dir, 'zebra-skill'));
+      fs.mkdirSync(path.join(dir, 'alpha-skill'));
+      fs.mkdirSync(path.join(dir, 'mango-skill'));
+      fs.writeFileSync(path.join(dir, 'not-a-dir.md'), 'x');
+      const r = discoverHermesSkills(tmp);
+      expect(r.count).toBe(3);
+      expect(r.names).toEqual(['alpha-skill', 'mango-skill', 'zebra-skill']);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('returns empty when skills dir absent', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-noskills-'));
+    try {
+      expect(discoverHermesSkills(tmp)).toEqual({ count: 0, names: [] });
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }

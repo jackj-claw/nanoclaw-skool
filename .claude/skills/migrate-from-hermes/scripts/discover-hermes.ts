@@ -850,3 +850,20 @@ export function discoverHermesMemory(stateDir: string): HermesMemoryInfo {
   if (fs.existsSync(u)) { result.has_user_md = true; result.user_md_size = fs.statSync(u).size; }
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Hermes skills detection
+// ---------------------------------------------------------------------------
+
+export interface HermesSkillsInfo {
+  count: number;
+  names: string[];
+}
+
+export function discoverHermesSkills(stateDir: string): HermesSkillsInfo {
+  const dir = path.join(stateDir, 'skills', 'openclaw-imports');
+  if (!fs.existsSync(dir)) return { count: 0, names: [] };
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const names = entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
+  return { count: names.length, names };
+}
