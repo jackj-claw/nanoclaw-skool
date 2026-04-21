@@ -84,6 +84,19 @@ fallback_model:
   it('returns {} on empty', () => {
     expect(parseHermesConfig('')).toEqual({});
   });
+
+  it('ignores non-string values in model block', () => {
+    const yaml = `
+model:
+  default: null
+  provider: false
+  base_url: 42
+`;
+    const r = parseHermesConfig(yaml);
+    expect(r.model).toBeUndefined();
+    expect(r.provider).toBeUndefined();
+    expect(r.base_url).toBeUndefined();
+  });
 });
 
 describe('parseHermesCronJobs', () => {

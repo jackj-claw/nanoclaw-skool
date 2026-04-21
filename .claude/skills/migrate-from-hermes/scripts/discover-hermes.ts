@@ -99,9 +99,9 @@ export function parseHermesConfig(text: string): HermesConfig {
   const result: HermesConfig = {};
   const modelBlock = data.model as Record<string, unknown> | undefined;
   if (modelBlock && typeof modelBlock === 'object') {
-    result.model = String(modelBlock.default ?? '') || undefined;
-    result.provider = String(modelBlock.provider ?? '') || undefined;
-    result.base_url = String(modelBlock.base_url ?? '') || undefined;
+    if (typeof modelBlock.default === 'string') result.model = modelBlock.default;
+    if (typeof modelBlock.provider === 'string') result.provider = modelBlock.provider;
+    if (typeof modelBlock.base_url === 'string') result.base_url = modelBlock.base_url;
     if (typeof modelBlock.context_length === 'number') {
       result.context_length = modelBlock.context_length;
     }
@@ -109,16 +109,16 @@ export function parseHermesConfig(text: string): HermesConfig {
   const delegation = data.delegation as Record<string, unknown> | undefined;
   if (delegation && typeof delegation === 'object') {
     result.delegation = {
-      model: delegation.model ? String(delegation.model) : undefined,
-      provider: delegation.provider ? String(delegation.provider) : undefined,
-      base_url: delegation.base_url ? String(delegation.base_url) : undefined,
+      model: typeof delegation.model === 'string' ? delegation.model : undefined,
+      provider: typeof delegation.provider === 'string' ? delegation.provider : undefined,
+      base_url: typeof delegation.base_url === 'string' ? delegation.base_url : undefined,
     };
   }
   const fallback = data.fallback_model as Record<string, unknown> | undefined;
   if (fallback && typeof fallback === 'object') {
     result.fallback_model = {
-      model: fallback.model ? String(fallback.model) : undefined,
-      provider: fallback.provider ? String(fallback.provider) : undefined,
+      model: typeof fallback.model === 'string' ? fallback.model : undefined,
+      provider: typeof fallback.provider === 'string' ? fallback.provider : undefined,
     };
   }
   return result;
