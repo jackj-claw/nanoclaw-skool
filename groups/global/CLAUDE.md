@@ -8,7 +8,7 @@ Files load in this order: **global → soul → user → group CLAUDE**. Later f
 
 ## The vault is the second brain
 
-`~/Desktop/workspace/` (Obsidian) is Chooki's compounding knowledge. Read-only to agents by default; agents write daily logs and decision records back after meaningful actions. Never assume, never guess — check the vault before answering business questions, before memory files, before API inference.
+`~/Desktop/workspace/` (Obsidian) is Chooki's compounding knowledge. **Main writes, specialists read.** The main group mounts the vault read-write and is the only agent that writes daily logs, decision records, and SOP updates. Specialist sub-groups (Eve, Sam, Syd, Wholesale, etc.) mount it read-only by default: they consume SOPs, product knowledge, and daily notes but cannot edit. If a specialist surfaces something worth persisting, it reports it back to main, which writes. Never assume, never guess — check the vault before answering business questions, before memory files, before API inference.
 
 Read order when researching a topic:
 1. `Home.md` + `master-index.md`
