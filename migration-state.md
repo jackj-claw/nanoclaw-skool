@@ -15,6 +15,10 @@
 - [ ] Phase D.5: Rotate tokens exposed in migration transcript (Telegram bot token, OAuth token, old Anthropic API key, old Admin API key).
 - [ ] Phase D.6: Delete `~/.hermes/` archive when confident no rollback needed.
 
+## Orchestration patterns (both coexist)
+- **Pattern A — ACTIVE**: Claude Code subagents at `groups/main/.claude/agents/{eve,sam,syd,wholesale}.md`. Main routes internally via the Task tool. Single container, shared context with main, no per-specialist Telegram channel required. This is the Hermes-like path.
+- **Pattern B — SCAFFOLDED, NOT REGISTERED**: Per-specialist Telegram groups at `groups/telegram_{eve,sam,syd,wholesale}/` (CLAUDE.md + soul.md + user.md) remain in place but are dormant. Activating requires registering JIDs in `registered_groups.json` (Phase 6). Can be flipped on later for per-chat specialist routing without touching Pattern A.
+
 ## Discovery (2026-04-21)
 - STATE_DIR: /Users/claw/.hermes
 - MODEL: claude-opus-4-7

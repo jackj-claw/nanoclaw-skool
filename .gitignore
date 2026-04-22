@@ -26,6 +26,9 @@ groups/telegram_wholesale/*
 !groups/main/CLAUDE.md
 !groups/main/soul.md
 !groups/main/user.md
+!groups/main/.claude/
+!groups/main/.claude/agents/
+!groups/main/.claude/agents/*.md
 !groups/global/CLAUDE.md
 !groups/telegram_eve/CLAUDE.md
 !groups/telegram_eve/soul.md
