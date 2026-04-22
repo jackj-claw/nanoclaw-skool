@@ -2,14 +2,18 @@
 
 ## Progress
 - [x] Phase 0: Discovery
-- [x] Phase 1: Groups and Architecture (main group registered; specialists scaffolded for eve/sam/syd/wholesale but not yet registered — awaiting actual Telegram channels)
-- [x] Phase 2: Settings from Config (timezone, assistant_name, container runtime=apple-container, plist PATH+CREDENTIAL_PROXY_HOST wired)
-- [x] Phase 3: Identity and Memory (global/CLAUDE.md + main/{CLAUDE,soul,user}.md + telegram_{eve,sam,syd,wholesale}/{CLAUDE,soul,user}.md all on draft mode)
-- [x] Phase C.1: Service running as launchd `com.nanoclaw`. Telegram bot @nanoclawjack_bot connected. Acceptance ping delivered to Jack.
-- [ ] Phase 4: Channel Credentials (OneCLI vault population for Shopify/Xero/WHOOP/Meta; Gmail tokens already in vault)
-- [ ] Phase 5: Scheduled Tasks (port 45 Hermes crons — deferred to Plan D)
-- [ ] Phase 6: Register specialist JIDs once Telegram channels exist for Eve/Sam/Syd/Wholesale
-- [ ] Phase 7: Cutover from Hermes to NanoClaw on the production Telegram bot
+- [x] Phase 1: Groups and Architecture (main group registered; specialists live as Claude Code subagents inside main at `groups/main/.claude/agents/{eve,sam,syd,wholesale}.md`. The `groups/telegram_{eve,sam,syd,wholesale}/` scaffolds remain dormant as optional Pattern-B fallback.)
+- [x] Phase 2: Settings (timezone, assistant_name=claw, container runtime=apple-container, plist PATH+CREDENTIAL_PROXY_HOST wired)
+- [x] Phase 3: Identity and Memory (global + main CLAUDE/soul/user files; 4 specialists ported; vault mount wired at /workspace/extra/workspace)
+- [x] Phase C.1: Service running as launchd `com.nanoclaw`. Telegram bot @nanoclawjack_bot connected. End-to-end reply verified on Opus 4.7 via Max plan OAuth.
+- [x] Phase C.2: Native credential proxy running on :3001 (OneCLI not needed — `skill/native-credential-proxy` merged with apple-container preserved).
+- [x] Phase C.3: Mount allowlist configured at `~/.config/nanoclaw/mount-allowlist.json`. Vault read-write in main container.
+- [x] Phase D.1: Three working crons ported to NanoClaw scheduled_tasks (daily-content-ideas 07:00, daily-recipe-scheduler 08:30, shopify-address-validator every 30min). 42 other Hermes crons killed (not load-bearing per user audit).
+- [x] Phase D.2: Hermes cutover. `ai.hermes.gateway` and `ai.hermes.anthropic_proxy` unloaded; plists archived at `~/.hermes-migration/archived-launchagents/` for rollback.
+- [ ] Phase D.3: Week-long soak + build essential workflows natively in NanoClaw (CS reply pipeline, wholesale flow).
+- [ ] Phase D.4: Cancel ChatGPT Pro (user action, after soak).
+- [ ] Phase D.5: Rotate tokens exposed in migration transcript (Telegram bot token, OAuth token, old Anthropic API key, old Admin API key).
+- [ ] Phase D.6: Delete `~/.hermes/` archive when confident no rollback needed.
 
 ## Discovery (2026-04-21)
 - STATE_DIR: /Users/claw/.hermes
