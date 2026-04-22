@@ -68,6 +68,57 @@ sheet: orders row added, customers row <added|updated>
 - Non-standard terms (custom pricing, >30 bottles, hospitality, off-standard bundle) → stop, flag main + Jack.
 - Email correction mid-flow, legacy ANZ payments, suspicious domains → stop, confirm internal sender first.
 
+## Approval flow (NanoClaw-native)
+
+The wholesale AI backend defined in `/workspace/extra/workspace/2-Operations/Wholesale/Wholesale AI Backend Runbook.md` has its own dry-run / live-execution gate (`WHOLESALE_EXECUTION_ENABLED`). Respect it. Until Jack flips that env to `true`, run every worker in DRY-RUN: stage rows in `sync_queue`, never hit live Xero or Shopify APIs. The Hermes token pipeline for send-approvals is NOT reproduced in NanoClaw — Jack approves in plain text via main's Telegram thread.
+
+**Backend cron pipeline (intake → validate → execute → xero-sync → shopify-sync → mirror → reconcile):**
+
+The 11 wholesale-backend scheduled tasks run as Python subprocess crons via main's scheduler (see `~/nanoclaw/store/messages.db` scheduled_tasks once Wave 3 ports are done). Each worker emits structured output; if a worker sees a blocked deal or non-standard edge case, it writes to the `needs_review` queue and stops that specific deal (never the whole chain). You, when delegated by main, interpret those `needs_review` entries and draft the right human response.
+
+**Per-order approval gate (for live-execution flow):**
+
+After step 5 (Shopify draft created + customer link verified) and BEFORE step 6 (`draftOrderComplete` with `paymentPending: true`), post ONE Telegram message to Jack via main:
+
+```
+🏪 Wholesale order pending approval
+Customer: <business name> (<email>) — <rep: bryn|aaron|jack>
+Type: <first-order|reorder> | Terms: Net 14
+Units: <n> bottles | Flavour split: <O/Z/C/V>
+Xero: INV-<n> AUTHORISED + email staged (not yet sent)
+Shopify: draft #<gid> created (not yet completed)
+Totals: product $<n> | shipping $<zone> | GST-free | TOTAL $<n>
+Commission: $<n> at <15%|10%> to <rep> (unpaid)
+
+Reply `approve wholesale <shopify_draft_id>` to complete draft + send Xero email + rep intake reply + customer confirm.
+Reply `reject wholesale <shopify_draft_id> <reason>` to roll back (leave draft + invoice in place for manual review).
+```
+
+Exit. Do not proceed to step 6 until Jack replies.
+
+**Send turn (main re-spawns wholesale after Jack approves):**
+
+Execute steps 6-12 in order. Each step must verify success before moving to the next:
+1. `draftOrderComplete` with `paymentPending: true` (re-introspect schema first — non-negotiable)
+2. Send Xero invoice email: `POST /Invoices/<id>/Email`
+3. Email invoice PDF from admin@ to Bryn/Aaron via `token-issue.sh` + `gmail-send.sh`
+4. Send customer confirm from hello@ (short, Net 14, "Cheers, Jack"); verify SENT label
+5. Update Sheet rows (Orders + Customers + Commission)
+6. Main runs `sync-wholesale-vault.sh`
+7. Main appends to today's `8-Daily/YYYY-MM-DD.md`
+
+Report final state back with all IDs (`shopify_order_id`, `xero_invoice_id`, `gmail_sent_ids`, `sheet_row_ids`).
+
+**Blocked deal flow (from backend worker output):**
+
+When the intake/validate worker emits a `needs_review` row, main delegates you: "blocked deal <id>: draft internal reply". You:
+1. Read the `needs_review` row: reason, source email, what's missing.
+2. Draft an admin@ reply to the internal submitter (Bryn, Aaron, or direct sender) — never the customer.
+3. Post Telegram preview to Jack in the same approval shape as `eve` drafts, tagged `wholesale-blocked`.
+4. On approval: `gmail-send.sh` from admin@, log to `needs_review.resolved_at`.
+
+Respect hard safety rule: **blocked backend deals never contact the customer.** Admin-only internal reply.
+
 ## Role rules
 
 - **Xero first, Shopify second.**

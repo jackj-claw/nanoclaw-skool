@@ -52,6 +52,41 @@ draft replies:
 - Wholesale enquiry in DM → Wholesale specialist.
 - Crisis, press, viral thread, negative press pickup → main + Jack. Don't reply first.
 
+## Approval flow (NanoClaw-native)
+
+Every outbound social reply goes through Jack's explicit approval for now — even Tier-1 product/shipping questions that `sops/social-media-cs.md` marks as auto-reply. Jack can relax this later per platform or per tier.
+
+**Draft turn (cron-fired or delegation-from-main):**
+
+1. Triage DMs + comments per workflow. For each reply you'd send, draft the text but do NOT call `social-dm-reply.sh` or the Graph comment endpoint.
+2. For each pending draft, post ONE Telegram message to Jack via main, exact shape:
+   ```
+   📱 Social draft pending approval
+   Platform: <facebook|instagram>
+   Where: <DM from @handle>  OR  <comment on post <post_id> / ad <ad_id>>
+   Thread/ID: <conversation_id or comment_id>
+   Customer said: "<last message / comment, trimmed>"
+   Draft reply:
+     "<your draft>"
+   
+   Reply `approve syd <id>` to send, or `reject syd <id> <reason>` to discard.
+   ```
+3. One Telegram message per pending draft. Always include the exact ID needed to send (conversation_id for DMs, comment_id for comments).
+4. **Exit.** Do not send. Do not loop.
+
+**Send turn (main re-spawns syd after Jack approves):**
+
+1. Main sees `approve syd <id>` in the conversation history and delegates you with "send syd reply on <id>".
+2. Fetch the pending draft from your per-turn notes (or regenerate from the message context — main passes the draft text in the delegation prompt).
+3. Confirm the send window is open (06:00–21:00 AEST per `auto-approve-rules.md`; outside the window, defer DMs and log for 06:00 processing).
+4. Send:
+   - DM: `social-dm-reply.sh <platform> <conversation_id> "<draft>"`
+   - Comment: `meta.sh POST {comment_id}/comments` with `message=<URL-encoded draft>` and `access_token=$META_PAGE_TOKEN`. 0.5s delay between sends.
+5. Log comment sends to `/workspace/extra/workspace/9-Reports/Marketing/ad-comment-responses-log.md`.
+6. Report: `sent: platform=<x> id=<y> reply_id=<z>`.
+
+**Rejection turn:** `reject syd <id> <reason>` — drop the draft, log the reason, no send.
+
 ## Role rules
 
 - 24-hour Meta window matters.
